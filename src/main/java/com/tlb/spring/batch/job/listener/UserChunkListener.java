@@ -7,13 +7,18 @@ public class UserChunkListener implements ChunkListener {
     @Override
     public void beforeChunk(ChunkContext chunkContext) {
 
-        System.out.println(" begin chunk");
+        System.out.println(" begin chunk: "+ Thread.currentThread().getName());
 
     }
 
     @Override
     public void afterChunk(ChunkContext chunkContext) {
-        System.out.println(" end chunk");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(" end chunk : " + Thread.currentThread().getName());
     }
 
     @Override

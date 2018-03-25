@@ -9,17 +9,17 @@ public class UserItemWriteListener implements ItemWriteListener<User> {
 
     @Override
     public void beforeWrite(List<? extends User> list) {
-        System.out.println("before write count is : " + list.size());
+        System.out.println("before write count is : " + list.size() + " " + Thread.currentThread().getName());
     }
 
     @Override
     public void afterWrite(List<? extends User> list) {
-        System.out.println("after write count is : " + list.size());
+        System.out.println("after write count is : " + list.size() + " "  + Thread.currentThread().getName() );
     }
 
     @Override
     public void onWriteError(Exception e, List<? extends User> list) {
-        System.out.println(" write error count is : " + list.size());
+        System.out.println(" write error count is : " + list.size() + "   " + Thread.currentThread().getName());
         System.out.println(" exception : " + e.getMessage());
     }
 

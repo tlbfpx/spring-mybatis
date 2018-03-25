@@ -1,38 +1,49 @@
 server:
-  port: 8080
+  port: 8088
+  servletPath: /*
 
 spring:
-    datasource:
-        name: test
-        url: jdbc:mysql://127.0.0.1:3306/batch
-        username: root
-        password: admin
-        # 使用druid数据源
-        type: com.alibaba.druid.pool.DruidDataSource
-        driver-class-name: com.mysql.jdbc.Driver
-        filters: stat
-        maxActive: 20
-        initialSize: 1
-        maxWait: 60000
-        minIdle: 1
-        timeBetweenEvictionRunsMillis: 60000
-        minEvictableIdleTimeMillis: 300000
-        validationQuery: select 'x'
-        testWhileIdle: true
-        testOnBorrow: false
-        testOnReturn: false
-        poolPreparedStatements: true
-        maxOpenPreparedStatements: 20
+  datasource:
+    name: test
+    url: jdbc:mysql://127.0.0.1:3306/batch
+    username: root
+    password: admin
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+
+
+
+  batch:
+    job:
+      enabled: false
+    initializer:
+      enabled: true
+
+
 mybatis:
   mapper-locations: classpath:mapping/*.xml
   type-aliases-package: com.winter.model
 
 #pagehelper分页插件
 pagehelper:
-    helperDialect: mysql
-    reasonable: true
-    supportMethodsArguments: true
-    params: count=countSql
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
 
 
 masterDS:
@@ -43,3 +54,5 @@ masterDS:
   # 使用druid数据源
   type: com.alibaba.druid.pool.DruidDataSource
   driver-class-name: com.mysql.jdbc.Driver
+
+

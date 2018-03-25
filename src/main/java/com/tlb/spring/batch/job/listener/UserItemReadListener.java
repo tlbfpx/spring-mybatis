@@ -6,12 +6,12 @@ import org.springframework.batch.core.ItemReadListener;
 public class UserItemReadListener implements ItemReadListener<User> {
     @Override
     public void beforeRead() {
-        System.out.println(" begin read object");
+        System.out.println(" begin read object : "  + Thread.currentThread().getName());
     }
 
     @Override
     public void afterRead(User user) {
-        System.out.println(" read object is :" + user.toString());
+        System.out.println(" read object is :" + user.toString()  + "    "+ Thread.currentThread().getName());
     }
 
     @Override

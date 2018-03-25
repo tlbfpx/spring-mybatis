@@ -2,10 +2,11 @@ package com.tlb.spring.batch.job;
 
 
 import com.tlb.spring.batch.job.adapter.DemoAdapter;
+import com.tlb.spring.batch.job.adapter.DemoPartitonAdapter;
 import com.tlb.spring.batch.job.adapter.MyItemReaderAdapter;
 import com.tlb.spring.batch.job.listener.*;
+import com.tlb.spring.batch.job.partition.DBpartition;
 import com.tlb.spring.batch.job.process.UserItemProcess;
-import com.tlb.spring.batch.job.reader.UserItemReader;
 import com.tlb.spring.batch.job.writer.UserItemWriter;
 import com.tlb.spring.model.User;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -16,7 +17,6 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,13 +25,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-//@Configuration
-//@EnableBatchProcessing
-public class UserBatchJob {
+@Configuration
+@EnableBatchProcessing
+public class PartitionBatchJob {
 
     private final String USER_QUERY_ALL = "selectAllUser";
     private final String USER_INSERT = "insertSelective";
-    private final String USER_PARTITION = "selectPartitionUser";
 
     @Autowired
     @Qualifier("sqlSessionFactoryFrom")
@@ -46,7 +45,7 @@ public class UserBatchJob {
 
 
     @Autowired
-    DemoAdapter demoAdapter;
+    DemoPartitonAdapter demoPartitonAdapter;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -64,11 +63,10 @@ public class UserBatchJob {
     @StepScope
     public MyItemReaderAdapter<User> myItemReaderAdapter() {
         MyItemReaderAdapter<User> adapter = new MyItemReaderAdapter<User>();
-        adapter.setTargetObject(demoAdapter);
+        adapter.setTargetObject(demoPartitonAdapter);
         adapter.setTargetMethod("next");
         return adapter;
     }
-
 
 
     @Bean
@@ -118,27 +116,46 @@ public class UserBatchJob {
 
     @Bean
 
-    public ThreadPoolTaskExecutor poolTaskExecutor(){
+    public ThreadPoolTaskExecutor poolTaskExecutor() {
         ThreadPoolTaskExecutor poolTaskExecutor = new ThreadPoolTaskExecutor();
-        poolTaskExecutor.setCorePoolSize(10);
-        poolTaskExecutor.setMaxPoolSize(30);
+        poolTaskExecutor.setCorePoolSize(4);
+        poolTaskExecutor.setMaxPoolSize(4);
         return poolTaskExecutor;
     }
 
+
     @Bean
-    public Job importJob(Step userStep) {
-        return jobBuilderFactory.get("importJob")
+    public Job partitionJob() {
+        return jobBuilderFactory.get("partitionJob")
                 .incrementer(new RunIdIncrementer())
-                .start(userStep)
+                .start(partitionStep())
                 .listener(userJobExecutionListener())
                 .build();
 
     }
 
     @Bean
-    public Step userStep(PlatformTransactionManager transactionManager) {
-        return stepBuilderFactory.get("userStep")
-                //.listener(userStepExecutionListener())
+    public Step partitionStep() {
+        return stepBuilderFactory.get("partitionStep")
+                .partitioner("userPartitionStep", dBpartition())
+                .step(userPartitionStep())
+                .gridSize(2)
+                .taskExecutor(poolTaskExecutor())
+                .build();
+    }
+
+    @Bean
+    public DBpartition dBpartition() {
+        DBpartition dBpartition = new DBpartition();
+        dBpartition.setColumn("user_id");
+        dBpartition.setTable("t_user");
+        return dBpartition;
+    }
+
+    @Bean
+    public Step userPartitionStep() {
+        return stepBuilderFactory.get("userPartitionStep")
+                .listener(userStepExecutionListener())
                 .<User, User>chunk(2)
                 //.reader(userItemReader())
                 .reader(myItemReaderAdapter())

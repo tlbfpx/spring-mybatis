@@ -6,6 +6,8 @@
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="thread" jdbcType="VARCHAR" property="thread" />
+    <result column="jobName" jdbcType="VARCHAR" property="jobName" />
   </resultMap>
   <sql id="Base_Column_List">
     user_id, user_name, password, phone
@@ -41,6 +43,12 @@
       <if test="phone != null">
         phone,
       </if>
+      <if test="thread != null">
+        thread,
+      </if>
+      <if test="jobName != null">
+        jobName,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
@@ -54,6 +62,12 @@
       </if>
       <if test="phone != null">
         #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="thread != null">
+        #{thread,jdbcType=VARCHAR},
+      </if>
+      <if test="jobName != null">
+        #{jobName,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -86,5 +100,13 @@
     select
     <include refid="Base_Column_List" />
     from t_user
+  </select>
+
+
+  <select id="selectPartitionUser" parameterType="com.tlb.spring.model.User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user
+    where user_id between #{min,jdbcType=INTEGER} and #{max,jdbcType=INTEGER}
   </select>
 </mapper>

@@ -8,13 +8,13 @@ public class UserItemProcessListener implements ItemProcessListener<User,User> {
 
     @Override
     public void beforeProcess(User user) {
-        System.out.println("before process");
+        System.out.println("before process  " + Thread.currentThread().getName());
 
     }
 
     @Override
     public void afterProcess(User user, User user2) {
-        System.out.println("after process");
+        System.out.println("after process  " + Thread.currentThread().getName() );
     }
 
     @Override

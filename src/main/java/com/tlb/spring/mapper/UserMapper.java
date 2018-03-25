@@ -28,4 +28,12 @@ public interface UserMapper {
     @Insert("INSERT INTO T_USER(USER_NAME, PASSWORD, PHONE) VALUES(#{name}, #{password}, #{phone})")
     int insert2(@Param("name") String name, @Param("password") String password, @Param("phone") String phone);
 
+    @Select("select min(user_id) from t_user")
+    int findMinUserId();
+
+    @Select("select max(user_id) from t_user")
+    int findMaxUserId();
+
+    List<User> selectPartitionUser(User user);
+
 }
